@@ -1,7 +1,9 @@
 package com.zlin.mvc.servlet;
 
+import com.google.gson.Gson;
 import com.zlin.mvc.annotation.Controller;
 import com.zlin.mvc.annotation.RequestMapping;
+import com.zlin.mvc.annotation.ResponseBody;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -116,7 +118,12 @@ public class DispatcherServlet extends HttpServlet {
         }
         // 利用反射机制来调用
         try {
-            method.invoke(this.controllerMap.get(url), paramValues);
+            Object object = method.invoke(this.controllerMap.get(url), paramValues);
+            // 这里使用Gson  官方使用的是jackson
+            if (method.isAnnotationPresent(ResponseBody.class)) {
+                String strJson = new Gson().toJson(object);
+                resp.getWriter().write(strJson);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
